@@ -15,5 +15,6 @@ from .scendesigner import (
     MorrisMethod,
     ParameterAnalysisData,
     Range,
+    remove_structure,
     set_method,
 )

@@ -103,6 +103,13 @@ class TestMakeStructure:
         assert levels["parameter_type_list"] == ("float",)
 
 
+class TestRemoveStructure:
+    def test_removes_items_added_by_make_structure(self, config_db_map):
+        scendesigner.remove_structure(config_db_map)
+        assert config_db_map.find_entity_classes() == []
+        assert config_db_map.find_parameter_value_lists() == []
+
+
 class TestAddEntityClassToAnalysis:
     def test_adds_class_with_correct_dimensions(self, config_db_map):
         config_db_map.add_entity_class(name="MyClass")

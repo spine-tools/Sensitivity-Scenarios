@@ -17,7 +17,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+from contextlib import suppress
 from dataclasses import dataclass, replace
 import logging
 from typing import TypeAlias, ClassVar
@@ -112,6 +112,14 @@ def make_structure(config_db_map: spinedb_api.DatabaseMapping) -> None:
         description="The entities in this class are the parameters used in sensitivity analysis.",
     )
 
+
+def remove_structure(config_db_map: spinedb_api.DatabaseMapping) -> None:
+    with suppress(spinedb_api.SpineDBAPIError):
+        config_db_map.remove_entity_class(name="SensitiveParameter")
+    with suppress(spinedb_api.SpineDBAPIError):
+        config_db_map.remove_entity_class(name="SensitivityAnalysis")
+    with suppress(spinedb_api.SpineDBAPIError):
+        config_db_map.remove_parameter_value_list(name="SensitivityAnalysisMethod")
 
 def set_method(config_db_map: spinedb_api.DatabaseMapping, method: Method) -> None:
     parameter_definition_table = config_db_map.mapped_table("parameter_definition")
