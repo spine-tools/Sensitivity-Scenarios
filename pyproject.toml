@@ -1,5 +1,5 @@
 [project]
-name = "scendesigner"
+name = "sensitivity_scenarios"
 version = "0.0.1"
 dependencies = [
     "pydoe",

@@ -1,4 +1,4 @@
-from .scendesigner import (
+from .sensitivity_scenarios import (
     add_entity_class_to_analysis,
     add_entity_to_analysis,
     add_levels,

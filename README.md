@@ -1,3 +1,3 @@
-# Scendesigner
+# Sensitivity-Scenarios
 
-`scendesigner` is Python framework to generate scenarios for sensitivity analysis in Spine databases.
+`sensitivity-scenarios` is Python framework to generate scenarios for sensitivity analysis in Spine databases.

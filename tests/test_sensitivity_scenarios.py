@@ -1,4 +1,4 @@
-# Copyright scendesigner contributors
+# Copyright sensitivity_scenarios contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@ import numpy as np
 import pytest
 import pandas as pd
 import spinedb_api
-import scendesigner
+import sensitivity_scenarios
 
 
 @pytest.fixture()
@@ -33,7 +33,7 @@ def in_db_map():
 @pytest.fixture()
 def config_db_map():
     with spinedb_api.DatabaseMapping("sqlite://", create=True) as db_map:
-        scendesigner.make_structure(db_map)
+        sensitivity_scenarios.make_structure(db_map)
         yield db_map
 
 
@@ -45,7 +45,7 @@ def out_db_map():
 
 class TestMakeStructure:
     def test_creates_method_value_list(self, in_db_map):
-        scendesigner.make_structure(in_db_map)
+        sensitivity_scenarios.make_structure(in_db_map)
         value_lists = in_db_map.find_parameter_value_lists()
         assert len(value_lists) == 1
         value_list = value_lists[0]
@@ -53,18 +53,18 @@ class TestMakeStructure:
         assert value_list["parsed_value_list"] == ["Morris method", "full factorial"]
 
     def test_creates_entity_classes(self, in_db_map):
-        scendesigner.make_structure(in_db_map)
+        sensitivity_scenarios.make_structure(in_db_map)
         assert {
             entity_class["name"] for entity_class in in_db_map.find_entity_classes()
         } == {"SensitivityAnalysis", "SensitiveParameter"}
 
     def test_creates_sensitivity_analysis_parameters(self, in_db_map):
-        scendesigner.make_structure(in_db_map)
+        sensitivity_scenarios.make_structure(in_db_map)
         self.assert_structure(in_db_map)
 
     def test_rewriting_structure_succeeds(self, in_db_map):
-        scendesigner.make_structure(in_db_map)
-        scendesigner.make_structure(in_db_map)
+        sensitivity_scenarios.make_structure(in_db_map)
+        sensitivity_scenarios.make_structure(in_db_map)
         self.assert_structure(in_db_map)
 
     @staticmethod
@@ -105,7 +105,7 @@ class TestMakeStructure:
 
 class TestRemoveStructure:
     def test_removes_items_added_by_make_structure(self, config_db_map):
-        scendesigner.remove_structure(config_db_map)
+        sensitivity_scenarios.remove_structure(config_db_map)
         assert config_db_map.find_entity_classes() == []
         assert config_db_map.find_parameter_value_lists() == []
 
@@ -113,14 +113,14 @@ class TestRemoveStructure:
 class TestAddEntityClassToAnalysis:
     def test_adds_class_with_correct_dimensions(self, config_db_map):
         config_db_map.add_entity_class(name="MyClass")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "MyClass")
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "MyClass")
         assert len(config_db_map.find_entity_classes()) == 4
         entity_class = config_db_map.entity_class(name="MyClass__SensitiveParameter")
         assert entity_class["dimension_name_list"] == ("MyClass", "SensitiveParameter")
 
     def test_adds_parameter_definition(self, config_db_map):
         config_db_map.add_entity_class(name="MyClass")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "MyClass")
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "MyClass")
         assert (
             len(
                 config_db_map.find_parameter_definitions(
@@ -148,8 +148,8 @@ class TestAddEntityClassToAnalysis:
 
     def test_rewriting_class_succeeds(self, config_db_map):
         config_db_map.add_entity_class(name="MyClass")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "MyClass")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "MyClass")
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "MyClass")
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "MyClass")
         assert (
             len(
                 config_db_map.find_parameter_definitions(
@@ -164,10 +164,10 @@ class TestAddVariabilityFraction:
     def test_adds_entity_and_value(self, config_db_map):
         config_db_map.add_entity_class(name="MyClass")
         config_db_map.add_entity(entity_class_name="MyClass", name="a")
-        scendesigner.add_parameter_to_analysis(config_db_map, "X")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "MyClass")
-        scendesigner.add_entity_to_analysis(config_db_map, "MyClass", ("a",), "X")
-        scendesigner.add_variability_fraction(
+        sensitivity_scenarios.add_parameter_to_analysis(config_db_map, "X")
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "MyClass")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "MyClass", ("a",), "X")
+        sensitivity_scenarios.add_variability_fraction(
             config_db_map, "MyClass", ("a",), "X", "Base", 0.1
         )
         entities = config_db_map.find_entities(
@@ -187,10 +187,10 @@ class TestAddLimits:
     def test_adds_entity_and_limits(self, config_db_map):
         config_db_map.add_entity_class(name="MyClass")
         config_db_map.add_entity(entity_class_name="MyClass", name="a")
-        scendesigner.add_parameter_to_analysis(config_db_map, "X")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "MyClass")
-        scendesigner.add_entity_to_analysis(config_db_map, "MyClass", ("a",), "X")
-        scendesigner.add_limits(
+        sensitivity_scenarios.add_parameter_to_analysis(config_db_map, "X")
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "MyClass")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "MyClass", ("a",), "X")
+        sensitivity_scenarios.add_limits(
             config_db_map, "MyClass", ("a",), "X", "Base", -0.3, 0.2
         )
         entities = config_db_map.find_entities(
@@ -220,7 +220,7 @@ class TestAddLimits:
 
 class TestBuildAnalysis:
     def test_build_simple_analysis(self, config_db_map, in_db_map):
-        scendesigner.make_structure(config_db_map)
+        sensitivity_scenarios.make_structure(config_db_map)
         in_db_map.add_entity_class(name="fish")
         in_db_map.add_parameter_definition(entity_class_name="fish", name="speed")
         in_db_map.add_entity(entity_class_name="fish", name="Nemo")
@@ -239,15 +239,15 @@ class TestBuildAnalysis:
         config_db_map.add_entity_class(name="fish")
         config_db_map.add_entity(entity_class_name="fish", name="Nemo")
         analysis_parameters = [
-            scendesigner.ParameterAnalysisData("speed", scendesigner.Fractional(0.1))
+            sensitivity_scenarios.ParameterAnalysisData("speed", sensitivity_scenarios.Fractional(0.1))
         ]
         analysis_entities = [
-            scendesigner.EntityAnalysisData(("Nemo",), analysis_parameters)
+            sensitivity_scenarios.EntityAnalysisData(("Nemo",), analysis_parameters)
         ]
         analysis_data = [
-            scendesigner.EntityClassAnalysisData("fish", analysis_entities)
+            sensitivity_scenarios.EntityClassAnalysisData("fish", analysis_entities)
         ]
-        scendesigner.build_analysis(
+        sensitivity_scenarios.build_analysis(
             config_db_map, in_db_map, "MyScenario", analysis_data
         )
         assert in_db_map.is_committed()
@@ -285,8 +285,8 @@ class TestReadMethod:
             name="method",
             parsed_value="full factorial",
         )
-        method = scendesigner.scendesigner.read_method(config_db_map)
-        assert isinstance(method, scendesigner.scendesigner.FullFactorialMethod)
+        method = sensitivity_scenarios.sensitivity_scenarios.read_method(config_db_map)
+        assert isinstance(method, sensitivity_scenarios.sensitivity_scenarios.FullFactorialMethod)
         assert (
             method.n_levels
             == config_db_map.parameter_definition(
@@ -296,8 +296,8 @@ class TestReadMethod:
         assert isinstance(method.n_levels, int)
 
     def test_read_morris_method(self, config_db_map):
-        method = scendesigner.scendesigner.read_method(config_db_map)
-        assert isinstance(method, scendesigner.scendesigner.MorrisMethod)
+        method = sensitivity_scenarios.sensitivity_scenarios.read_method(config_db_map)
+        assert isinstance(method, sensitivity_scenarios.sensitivity_scenarios.MorrisMethod)
         assert (
             method.n_trajectories
             == config_db_map.parameter_definition(
@@ -323,20 +323,20 @@ class TestReadMethod:
 
 class TestGenerateFullFactorialSampling:
     def test_two_levels_samples_min_and_max(self):
-        method = scendesigner.scendesigner.FullFactorialMethod(2)
-        sampling = scendesigner.scendesigner.generate_full_factorial_sampling(method, 1)
+        method = sensitivity_scenarios.sensitivity_scenarios.FullFactorialMethod(2)
+        sampling = sensitivity_scenarios.sensitivity_scenarios.generate_full_factorial_sampling(method, 1)
         assert np.array_equal(sampling, np.array([[0.0], [1.0]]))
 
     def test_multiple_levels(self):
-        method = scendesigner.scendesigner.FullFactorialMethod(4)
-        sampling = scendesigner.scendesigner.generate_full_factorial_sampling(method, 1)
+        method = sensitivity_scenarios.sensitivity_scenarios.FullFactorialMethod(4)
+        sampling = sensitivity_scenarios.sensitivity_scenarios.generate_full_factorial_sampling(method, 1)
         assert np.array_equal(
             sampling, np.array([[0.0], [1.0 / 3.0], [2.0 / 3.0], [1.0]])
         )
 
     def test_parameter_specific_levels(self):
-        method = scendesigner.scendesigner.FullFactorialMethod([2, 3])
-        sampling = scendesigner.scendesigner.generate_full_factorial_sampling(method)
+        method = sensitivity_scenarios.sensitivity_scenarios.FullFactorialMethod([2, 3])
+        sampling = sensitivity_scenarios.sensitivity_scenarios.generate_full_factorial_sampling(method)
         assert np.array_equal(
             sampling,
             np.array(
@@ -362,7 +362,7 @@ class TestApplySampling:
             dtype=pd.Float64Dtype(),
         )
         sampling = np.array([[0.5], [0.25], [0.75]])
-        sampled = scendesigner.scendesigner.apply_sampling(parameters, sampling)
+        sampled = sensitivity_scenarios.sensitivity_scenarios.apply_sampling(parameters, sampling)
         expected = pd.DataFrame(
             {0: [21.0], 1: [21.0 - 2.1 / 2], 2: [21.0 + 2.1 / 2]},
             index=index,
@@ -386,7 +386,7 @@ class TestApplySampling:
             dtype=pd.Float64Dtype(),
         )
         sampling = np.array([[0.0], [0.5], [1.0]])
-        sampled = scendesigner.scendesigner.apply_sampling(parameters, sampling)
+        sampled = sensitivity_scenarios.sensitivity_scenarios.apply_sampling(parameters, sampling)
         expected = pd.DataFrame(
             {0: [19.0], 1: [21.5], 2: [24.0]}, index=index, dtype=pd.Float64Dtype()
         )
@@ -397,7 +397,7 @@ class TestReadIndividualLevelsForScenario:
     def test_no_levels_defined(self, config_db_map):
         alternatives = ["Base"]
         range_config_index = pd.MultiIndex.from_tuples([("fish", ("Nemo",), "speed")])
-        levels = scendesigner.scendesigner.read_individual_levels_for_scenario(
+        levels = sensitivity_scenarios.sensitivity_scenarios.read_individual_levels_for_scenario(
             config_db_map, alternatives, range_config_index
         )
         assert levels == [pd.NA]
@@ -414,12 +414,12 @@ class TestReadIndividualLevelsForScenario:
             alternative_name="Base",
             parsed_value=2.3,
         )
-        scendesigner.add_entity_class_to_analysis(config_db_map, "fish")
-        scendesigner.add_parameter_to_analysis(config_db_map, "speed")
-        scendesigner.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
-        scendesigner.add_levels(config_db_map, "fish", ("Nemo",), "speed", "Base", 32)
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "fish")
+        sensitivity_scenarios.add_parameter_to_analysis(config_db_map, "speed")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
+        sensitivity_scenarios.add_levels(config_db_map, "fish", ("Nemo",), "speed", "Base", 32)
         range_config_index = pd.MultiIndex.from_tuples([("fish", ("Nemo",), "speed")])
-        levels = scendesigner.scendesigner.read_individual_levels_for_scenario(
+        levels = sensitivity_scenarios.sensitivity_scenarios.read_individual_levels_for_scenario(
             config_db_map, alternatives, range_config_index
         )
         assert levels == [32]
@@ -430,10 +430,10 @@ class TestConfigValuesByScenario:
     def test_limits_in_same_alternative(self, config_db_map):
         config_db_map.add_entity_class(name="fish")
         config_db_map.add_entity(entity_class_name="fish", name="Nemo")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "fish")
-        scendesigner.add_parameter_to_analysis(config_db_map, "speed")
-        scendesigner.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
-        scendesigner.add_limits(
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "fish")
+        sensitivity_scenarios.add_parameter_to_analysis(config_db_map, "speed")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
+        sensitivity_scenarios.add_limits(
             config_db_map, "fish", ("Nemo",), "speed", "Base", -0.33, 0.44
         )
         negative_limit = config_db_map.parameter_value(
@@ -448,10 +448,10 @@ class TestConfigValuesByScenario:
             parameter_definition_name="positive_limit",
             alternative_name="Base",
         )
-        range_configs = scendesigner.scendesigner.RangeConfigs(
+        range_configs = sensitivity_scenarios.sensitivity_scenarios.RangeConfigs(
             {"Base": negative_limit}, {"Base": positive_limit}, {}
         )
-        result = scendesigner.scendesigner.config_values_by_scenario(
+        result = sensitivity_scenarios.sensitivity_scenarios.config_values_by_scenario(
             ["Base"], range_configs
         )
         assert result is not None
@@ -465,9 +465,9 @@ class TestConfigValuesByScenario:
         config_db_map.add_alternative(name="positive")
         config_db_map.add_entity_class(name="fish")
         config_db_map.add_entity(entity_class_name="fish", name="Nemo")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "fish")
-        scendesigner.add_parameter_to_analysis(config_db_map, "speed")
-        scendesigner.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "fish")
+        sensitivity_scenarios.add_parameter_to_analysis(config_db_map, "speed")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
         negative_limit = config_db_map.add_parameter_value(
             entity_class_name="fish__SensitiveParameter",
             entity_byname=("Nemo", "speed"),
@@ -482,10 +482,10 @@ class TestConfigValuesByScenario:
             alternative_name="positive",
             parsed_value=2.22,
         )
-        range_configs = scendesigner.scendesigner.RangeConfigs(
+        range_configs = sensitivity_scenarios.sensitivity_scenarios.RangeConfigs(
             {"Base": negative_limit}, {"positive": positive_limit}, {}
         )
-        result = scendesigner.scendesigner.config_values_by_scenario(
+        result = sensitivity_scenarios.sensitivity_scenarios.config_values_by_scenario(
             ["Base", "positive"], range_configs
         )
         assert result is not None
@@ -510,13 +510,13 @@ class TestReadAnalysisParametersForScenario:
         )
         config_db_map.add_entity_class(name="fish")
         config_db_map.add_entity(entity_class_name="fish", name="Nemo")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "fish")
-        scendesigner.add_parameter_to_analysis(config_db_map, "speed")
-        scendesigner.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
-        scendesigner.add_variability_fraction(
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "fish")
+        sensitivity_scenarios.add_parameter_to_analysis(config_db_map, "speed")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
+        sensitivity_scenarios.add_variability_fraction(
             config_db_map, "fish", ("Nemo",), "speed", "Base", 0.1
         )
-        parameters = scendesigner.scendesigner.read_analysis_parameters_for_scenario(
+        parameters = sensitivity_scenarios.sensitivity_scenarios.read_analysis_parameters_for_scenario(
             config_db_map, in_db_map, ["Base"]
         )
         index = pd.MultiIndex.from_tuples(
@@ -556,16 +556,16 @@ class TestReadAnalysisParametersForScenario:
         config_db_map.add_entity_class(name="fish")
         config_db_map.add_entity(entity_class_name="fish", name="Nemo")
         config_db_map.add_alternative(name="High")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "fish")
-        scendesigner.add_parameter_to_analysis(config_db_map, "speed")
-        scendesigner.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
-        scendesigner.add_variability_fraction(
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "fish")
+        sensitivity_scenarios.add_parameter_to_analysis(config_db_map, "speed")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
+        sensitivity_scenarios.add_variability_fraction(
             config_db_map, "fish", ("Nemo",), "speed", "Base", 0.1
         )
-        scendesigner.add_variability_fraction(
+        sensitivity_scenarios.add_variability_fraction(
             config_db_map, "fish", ("Nemo",), "speed", "High", 0.2
         )
-        parameters = scendesigner.scendesigner.read_analysis_parameters_for_scenario(
+        parameters = sensitivity_scenarios.sensitivity_scenarios.read_analysis_parameters_for_scenario(
             config_db_map, in_db_map, ["Base", "High"]
         )
         index = pd.MultiIndex.from_tuples(
@@ -607,14 +607,14 @@ class TestReadAnalysisParametersForScenario:
         config_db_map.add_entity_class(name="fish")
         config_db_map.add_entity(entity_class_name="fish", name="Bruce")
         config_db_map.add_entity(entity_class_name="fish", name="Nemo")
-        scendesigner.add_entity_class_to_analysis(config_db_map, "fish")
-        scendesigner.add_parameter_to_analysis(config_db_map, "speed")
-        scendesigner.add_entity_to_analysis(config_db_map, "fish", ("Bruce",), "speed")
-        scendesigner.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
-        scendesigner.add_variability_fraction(
+        sensitivity_scenarios.add_entity_class_to_analysis(config_db_map, "fish")
+        sensitivity_scenarios.add_parameter_to_analysis(config_db_map, "speed")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "fish", ("Bruce",), "speed")
+        sensitivity_scenarios.add_entity_to_analysis(config_db_map, "fish", ("Nemo",), "speed")
+        sensitivity_scenarios.add_variability_fraction(
             config_db_map, "fish", ("Nemo",), "speed", "Base", 0.1
         )
-        parameters = scendesigner.scendesigner.read_analysis_parameters_for_scenario(
+        parameters = sensitivity_scenarios.sensitivity_scenarios.read_analysis_parameters_for_scenario(
             config_db_map, in_db_map, ["Base"]
         )
         index = pd.MultiIndex.from_tuples(
@@ -645,8 +645,8 @@ class TestWriteVariedValues:
         samples = pd.DataFrame(
             {0: [21.0], 1: [21.0 - 2.1 / 2], 2: [21.0 + 2.1 / 2]}, index=index
         )
-        scendesigner.scendesigner.write_out_alternatives(out_db_map, "sample", 3)
-        scendesigner.scendesigner.write_samples(out_db_map, "sample", samples)
+        sensitivity_scenarios.sensitivity_scenarios.write_out_alternatives(out_db_map, "sample", 3)
+        sensitivity_scenarios.sensitivity_scenarios.write_samples(out_db_map, "sample", samples)
         assert len(out_db_map.find_parameter_values()) == 3
         value = out_db_map.parameter_value(
             entity_class_name="fish",
@@ -673,8 +673,8 @@ class TestWriteVariedValues:
 
 class TestWriteScenarios:
     def test_scenario_has_required_alternatives(self, out_db_map):
-        scendesigner.scendesigner.write_out_alternatives(out_db_map, "alt", 1)
-        scendesigner.scendesigner.write_scenarios(
+        sensitivity_scenarios.sensitivity_scenarios.write_out_alternatives(out_db_map, "alt", 1)
+        sensitivity_scenarios.sensitivity_scenarios.write_scenarios(
             out_db_map, "MyScenario", 1, ["Base"], "alt"
         )
         assert len(out_db_map.find_scenarios()) == 1
@@ -686,7 +686,7 @@ class TestWriteScenarios:
 
 class TestMakeScenarios:
     def test_default_morris_method(self, config_db_map, in_db_map, out_db_map):
-        scendesigner.make_structure(config_db_map)
+        sensitivity_scenarios.make_structure(config_db_map)
         in_db_map.add_entity_class(name="fish")
         in_db_map.add_parameter_definition(entity_class_name="fish", name="speed")
         in_db_map.add_entity(entity_class_name="fish", name="Nemo")
@@ -712,29 +712,29 @@ class TestMakeScenarios:
         out_db_map.add_parameter_definition(entity_class_name="fish", name="speed")
         out_db_map.add_entity(entity_class_name="fish", name="Nemo")
         analysis_data = [
-            scendesigner.EntityClassAnalysisData(
+            sensitivity_scenarios.EntityClassAnalysisData(
                 "fish",
                 [
-                    scendesigner.EntityAnalysisData(
+                    sensitivity_scenarios.EntityAnalysisData(
                         ("Nemo",),
                         [
-                            scendesigner.ParameterAnalysisData(
-                                "speed", scendesigner.Fractional(0.1)
+                            sensitivity_scenarios.ParameterAnalysisData(
+                                "speed", sensitivity_scenarios.Fractional(0.1)
                             )
                         ],
                     )
                 ],
             )
         ]
-        scendesigner.build_analysis(
+        sensitivity_scenarios.build_analysis(
             config_db_map, in_db_map, "MyScenario", analysis_data
         )
         config_db_map.commit_session("Add config data.")
-        scendesigner.make_scenarios(config_db_map, in_db_map, out_db_map)
+        sensitivity_scenarios.make_scenarios(config_db_map, in_db_map, out_db_map)
         assert in_db_map.is_committed()
         assert config_db_map.is_committed()
         assert not out_db_map.is_committed()
-        method = scendesigner.scendesigner.read_method(config_db_map)
+        method = sensitivity_scenarios.sensitivity_scenarios.read_method(config_db_map)
         analysed_parameter_count = 1
         expected_scenario_count = method.n_trajectories * (analysed_parameter_count + 1)
         assert len(out_db_map.find_alternatives()) == 1 + expected_scenario_count
@@ -758,7 +758,7 @@ class TestMakeScenarios:
     def test_full_fractional_with_individual_levels(
         self, config_db_map, in_db_map, out_db_map
     ):
-        scendesigner.make_structure(config_db_map)
+        sensitivity_scenarios.make_structure(config_db_map)
         in_db_map.add_entity_class(name="fish")
         in_db_map.add_parameter_definition(entity_class_name="fish", name="speed")
         in_db_map.add_entity(entity_class_name="fish", name="Nemo")
@@ -784,27 +784,27 @@ class TestMakeScenarios:
         out_db_map.add_parameter_definition(entity_class_name="fish", name="speed")
         out_db_map.add_entity(entity_class_name="fish", name="Nemo")
         analysis_data = [
-            scendesigner.EntityClassAnalysisData(
+            sensitivity_scenarios.EntityClassAnalysisData(
                 "fish",
                 [
-                    scendesigner.EntityAnalysisData(
+                    sensitivity_scenarios.EntityAnalysisData(
                         ("Nemo",),
                         [
-                            scendesigner.ParameterAnalysisData(
-                                "speed", scendesigner.Range(-0.5, 0.5)
+                            sensitivity_scenarios.ParameterAnalysisData(
+                                "speed", sensitivity_scenarios.Range(-0.5, 0.5)
                             )
                         ],
                     )
                 ],
             )
         ]
-        scendesigner.set_method(config_db_map, scendesigner.FullFactorialMethod(8))
-        scendesigner.build_analysis(
+        sensitivity_scenarios.set_method(config_db_map, sensitivity_scenarios.FullFactorialMethod(8))
+        sensitivity_scenarios.build_analysis(
             config_db_map, in_db_map, "MyScenario", analysis_data
         )
-        scendesigner.add_levels(config_db_map, "fish", ("Nemo",), "speed", "Base", 2)
+        sensitivity_scenarios.add_levels(config_db_map, "fish", ("Nemo",), "speed", "Base", 2)
         config_db_map.commit_session("Add config data.")
-        scendesigner.make_scenarios(config_db_map, in_db_map, out_db_map)
+        sensitivity_scenarios.make_scenarios(config_db_map, in_db_map, out_db_map)
         assert in_db_map.is_committed()
         assert config_db_map.is_committed()
         assert not out_db_map.is_committed()

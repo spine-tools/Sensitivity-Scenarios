@@ -1,4 +1,4 @@
-# Copyright scendesigner contributors
+# Copyright sensitivity_scenarios contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ import pydoe
 import spinedb_api
 
 
-class ScendesignerException(Exception):
+class sensitivity_scenariosException(Exception):
     pass
 
 
@@ -708,7 +708,7 @@ def make_scenarios(
     method = read_method(config_db_map)
     scenario = in_db_map.scenario_filter()
     if scenario is None:
-        raise ScendesignerException()
+        raise sensitivity_scenariosException()
     alternatives = in_db_map.scenario(name=scenario)["alternative_name_list"]
     analysis_parameters = read_analysis_parameters_for_scenario(
         config_db_map, in_db_map, alternatives
