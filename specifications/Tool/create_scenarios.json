@@ -1,8 +1,8 @@
 {
-    "name": "Create sensitivity analysis scenario",
+    "name": "Create sensitivity analysis scenarios",
     "tooltype": "python",
     "includes": [
-        "create_scenario.py",
+        "create_scenarios.py",
         "sensitivity_scenarios/sensitivity_scenarios.py",
         "sensitivity_scenarios/__init__.py"
     ],

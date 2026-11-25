@@ -13,7 +13,7 @@
             {
                 "type": "path",
                 "relative": true,
-                "path": "specifications/Tool/create_scenario.json"
+                "path": "specifications/Tool/create_scenarios.json"
             },
             {
                 "type": "path",
