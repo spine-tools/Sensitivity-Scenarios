@@ -28,10 +28,6 @@ import pydoe
 import spinedb_api
 
 
-class sensitivity_scenariosException(Exception):
-    pass
-
-
 @dataclass(frozen=True)
 class FullFactorialMethod:
     NAME: ClassVar[str] = "full factorial"
@@ -702,13 +698,11 @@ def write_scenarios(
 
 def make_scenarios(
     config_db_map: spinedb_api.DatabaseMapping,
+    scenario: str,
     in_db_map: spinedb_api.DatabaseMapping,
     out_db_map: spinedb_api.DatabaseMapping,
 ) -> None:
     method = read_method(config_db_map)
-    scenario = in_db_map.scenario_filter()
-    if scenario is None:
-        raise sensitivity_scenariosException()
     alternatives = in_db_map.scenario(name=scenario)["alternative_name_list"]
     analysis_parameters = read_analysis_parameters_for_scenario(
         config_db_map, in_db_map, alternatives

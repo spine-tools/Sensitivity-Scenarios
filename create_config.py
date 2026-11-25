@@ -7,9 +7,9 @@ import sensitivity_scenarios
 
 def main():
     arg_parser = argparse.ArgumentParser(prog="create_config", description="Creates basic structures needed for sensitivity analysis.")
+    arg_parser.add_argument("db_url", help="Target Spine database URL.")
     arg_parser.add_argument("--parameters", nargs="*", help="Parameters to use.")
     arg_parser.add_argument("--classes", nargs="*", help="Classes to use.")
-    arg_parser.add_argument("db_url", help="Target Spine database URL.")
     args = arg_parser.parse_args()
     with spinedb_api.DatabaseMapping(args.db_url) as db_map:
         sensitivity_scenarios.make_structure(db_map)

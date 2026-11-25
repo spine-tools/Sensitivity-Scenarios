@@ -702,10 +702,6 @@ class TestMakeScenarios:
             scenario_name="MyScenario", alternative_name="Base", rank=0
         )
         in_db_map.commit_session("Add test data.")
-        spinedb_api.filters.tools.apply_filter_stack(
-            in_db_map,
-            [spinedb_api.filters.scenario_filter.scenario_filter_config("MyScenario")],
-        )
         config_db_map.add_entity_class(name="fish")
         config_db_map.add_entity(entity_class_name="fish", name="Nemo")
         out_db_map.add_entity_class(name="fish")
@@ -730,7 +726,7 @@ class TestMakeScenarios:
             config_db_map, in_db_map, "MyScenario", analysis_data
         )
         config_db_map.commit_session("Add config data.")
-        sensitivity_scenarios.make_scenarios(config_db_map, in_db_map, out_db_map)
+        sensitivity_scenarios.make_scenarios(config_db_map, "MyScenario", in_db_map, out_db_map)
         assert in_db_map.is_committed()
         assert config_db_map.is_committed()
         assert not out_db_map.is_committed()
@@ -774,10 +770,6 @@ class TestMakeScenarios:
             scenario_name="MyScenario", alternative_name="Base", rank=0
         )
         in_db_map.commit_session("Add test data.")
-        spinedb_api.filters.tools.apply_filter_stack(
-            in_db_map,
-            [spinedb_api.filters.scenario_filter.scenario_filter_config("MyScenario")],
-        )
         config_db_map.add_entity_class(name="fish")
         config_db_map.add_entity(entity_class_name="fish", name="Nemo")
         out_db_map.add_entity_class(name="fish")
@@ -804,7 +796,7 @@ class TestMakeScenarios:
         )
         sensitivity_scenarios.add_levels(config_db_map, "fish", ("Nemo",), "speed", "Base", 2)
         config_db_map.commit_session("Add config data.")
-        sensitivity_scenarios.make_scenarios(config_db_map, in_db_map, out_db_map)
+        sensitivity_scenarios.make_scenarios(config_db_map, "MyScenario", in_db_map, out_db_map)
         assert in_db_map.is_committed()
         assert config_db_map.is_committed()
         assert not out_db_map.is_committed()
