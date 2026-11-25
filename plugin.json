@@ -1,0 +1,25 @@
+{
+    "name": "Sensitivity Scenarios",
+    "version": "0.1.0",
+    "base_path": "https://spine-tools.github.io/Sensitivity-Scenarios/",
+    "description": "Sensitivity analysis plugin for Spine Toolbox.",
+    "specifications": {
+        "Tool": [
+            {
+                "type": "path",
+                "relative": true,
+                "path": "specifications/Tool/create_config.json"
+            },
+            {
+                "type": "path",
+                "relative": true,
+                "path": "specifications/Tool/create_scenario.json"
+            },
+            {
+                "type": "path",
+                "relative": true,
+                "path": "specifications/Tool/remove_config.json"
+            }
+        ]
+    }
+}

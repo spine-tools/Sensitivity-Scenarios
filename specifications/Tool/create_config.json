@@ -1,0 +1,15 @@
+{
+    "name": "Create sensitivity analysis config",
+    "tooltype": "python",
+    "includes": [
+        "create_config.py",
+        "sensitivity_scenarios/sensitivity_scenarios.py",
+        "sensitivity_scenarios/__init__.py"
+    ],
+    "description": "Writes classes, parameters etc. required by sensitivity analysis to Spine database. Expects database URL as the first command line argument.",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [],
+    "cmdline_args": [],
+    "includes_main_path": "../../"
+}

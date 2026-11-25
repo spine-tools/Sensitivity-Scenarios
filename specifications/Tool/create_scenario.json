@@ -1,0 +1,15 @@
+{
+    "name": "Create sensitivity analysis scenario",
+    "tooltype": "python",
+    "includes": [
+        "create_scenario.py",
+        "sensitivity_scenarios/sensitivity_scenarios.py",
+        "sensitivity_scenarios/__init__.py"
+    ],
+    "description": "Requires target database URL as command line argument.",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [],
+    "cmdline_args": [],
+    "includes_main_path": "../.."
+}

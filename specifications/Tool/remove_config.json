@@ -1,0 +1,15 @@
+{
+    "name": "Remove sensitivity analysis data",
+    "tooltype": "python",
+    "includes": [
+        "remove_config.py",
+        "sensitivity_scenarios/sensitivity_scenarios.py",
+        "sensitivity_scenarios/__init__.py"
+    ],
+    "description": "Removes sensitivity analysis data from target Spine database. Does not remove sensitive alternatives or scenarios.",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [],
+    "cmdline_args": [],
+    "includes_main_path": "../.."
+}
