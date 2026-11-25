@@ -6,7 +6,7 @@
         "sensitivity_scenarios/sensitivity_scenarios.py",
         "sensitivity_scenarios/__init__.py"
     ],
-    "description": "Requires target database URL as command line argument.",
+    "description": "Requires target database URL and base scenario name as command line arguments.",
     "inputfiles": [],
     "inputfiles_opt": [],
     "outputfiles": [],
